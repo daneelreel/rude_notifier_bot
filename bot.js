@@ -140,7 +140,7 @@ function scheduleRandomInquiry(chatId) {
         }
       });
     } else {
-      bot.sendMessage(chatId, 'Все цветы уже умерли.');
+      bot.sendMessage(chatId, 'Поздно, все цветы уже умерли.');
     }
   }, delay);
 }
@@ -152,13 +152,25 @@ bot.on('callback_query', (callbackQuery) => {
 
   if (data === 'yes') {
     userSettings[chatId].attempts = 0; // Сброс попыток
-    bot.sendMessage(chatId, 'Отлично! Напоминание установлено.');
+    bot.sendMessage(chatId, 'Отлично! До следующей недели.');
+    // Убедитесь, что здесь не вызывается startOrReset
   } else if (data === 'no') {
     userSettings[chatId].attempts = (userSettings[chatId].attempts || 0) + 1;
     if (userSettings[chatId].attempts < maxAttempts) {
       scheduleRandomInquiry(chatId);
     } else {
-      bot.sendMessage(chatId, 'Все цветы уже умерли.');
+      bot.sendMessage(chatId, 'Поздно, все цветы уже умерли.');
     }
   }
+});
+
+// Убедитесь, что startOrReset вызывается только при старте или сбросе
+bot.onText(/\/start/, (msg) => {
+  const chatId = msg.chat.id;
+  startOrReset(chatId);
+});
+
+bot.onText(/\/reset/, (msg) => {
+  const chatId = msg.chat.id;
+  startOrReset(chatId);
 });
